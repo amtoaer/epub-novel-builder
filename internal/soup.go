@@ -16,7 +16,7 @@ func (s SafeSoup) SafeFind(args ...string) SafeSoup {
 func (s SafeSoup) SafeFindAll(args ...string) ([]SafeSoup, error) {
 	if s.Pointer != nil {
 		tmp := s.FindAll(args...)
-		result := make([]SafeSoup, 0, len(tmp))
+		result := make([]SafeSoup, len(tmp))
 		for idx := range tmp {
 			result[idx] = SafeSoup{tmp[idx]}
 		}

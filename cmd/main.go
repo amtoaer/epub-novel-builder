@@ -11,7 +11,7 @@ import (
 
 func main() {
 	t := adapter.I69shu{}
-	books := t.Search("神控天下")
+	books := t.Search("将夜")
 	if len(books) == 0 {
 		panic("no book found")
 	}
@@ -35,7 +35,7 @@ func main() {
 		chapter, _ := t.Download(chapterInfo)
 		e.AddSection(chapter.Content, chapter.Title, "", cssPath)
 	}
-	println("saving to " + path.Join(internal.OUTPUT_DIR, book.Title+".epub"+"..."))
+	println("saving to " + path.Join(internal.OUTPUT_DIR, book.Title+".epub") + " ...")
 	os.MkdirAll(internal.OUTPUT_DIR, os.FileMode(0755))
 	e.Write(path.Join(internal.OUTPUT_DIR, book.Title+".epub"))
 	println("success")
