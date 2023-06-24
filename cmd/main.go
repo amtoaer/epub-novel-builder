@@ -11,7 +11,10 @@ import (
 
 func main() {
 	t := adapter.I69shu{}
-	books, _ := t.Search("神秘复苏")
+	books := t.Search("神控天下")
+	if len(books) == 0 {
+		panic("no book found")
+	}
 	book := books[0]
 	e := epub.NewEpub(book.Title)
 	cssPath, err := e.AddCSS("./internal/custom.css", "custom.css")
