@@ -3,6 +3,7 @@ package internal
 import (
 	"bytes"
 	"io"
+	"strings"
 
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
@@ -40,4 +41,11 @@ func GbkStringToUtf8(input string) (string, error) {
 
 func Utf8StringToGbk(input string) (string, error) {
 	return Utf8ToGbkString(bytes.NewBuffer([]byte(input)))
+}
+
+func BuildContent(paragraph []string) string {
+	for idx := range paragraph {
+		paragraph[idx] = "<p>" + paragraph[idx] + "</p>"
+	}
+	return strings.Join(paragraph, PARAGRAPH_SUFFIX)
 }

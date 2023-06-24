@@ -34,7 +34,7 @@ func (i *I69shu) Download(chapter internal.BookChapterInfo) (internal.BookChapte
 			if len(data) != 0 {
 				buf.WriteString(internal.PARAGRAPH_PREFIX)
 				buf.WriteString(data)
-				paragraph = append(paragraph, "<p>"+buf.String()+"</p>")
+				paragraph = append(paragraph, buf.String())
 				buf.Reset()
 			}
 		}
@@ -48,7 +48,7 @@ func (i *I69shu) Download(chapter internal.BookChapterInfo) (internal.BookChapte
 	}
 	return internal.BookChapter{
 		Title:   title,
-		Content: strings.Join(paragraph, internal.PARAGRAPH_SUFFIX),
+		Content: internal.BuildContent(paragraph),
 	}, nil
 }
 
