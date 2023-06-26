@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/amtoaer/epub-novel-builder/internal"
@@ -14,6 +15,13 @@ import (
 )
 
 type I69shu struct {
+	titleMatcher *regexp.Regexp
+}
+
+func New69shu() *I69shu {
+	return &I69shu{
+		titleMatcher: regexp.MustCompile(`第.+?章`),
+	}
 }
 
 func (i *I69shu) Download(chapter internal.BookChapterInfo) (internal.BookChapter, error) {
@@ -27,24 +35,21 @@ func (i *I69shu) Download(chapter internal.BookChapterInfo) (internal.BookChapte
 	chapterContent := doc.Find("div", "class", "txtnav")
 	start := chapterContent.Pointer.FirstChild
 	var paragraph []string
-	var buf bytes.Buffer
 	for start != nil {
 		if start.Type == html.TextNode {
 			data := strings.Trim(start.Data, "\n\r\t  ")
 			if len(data) != 0 {
-				buf.WriteString(internal.PARAGRAPH_PREFIX)
-				buf.WriteString(data)
-				paragraph = append(paragraph, buf.String())
-				buf.Reset()
+				paragraph = append(paragraph, data)
 			}
 		}
 		start = start.NextSibling
 	}
 	title := chapter.Title
-	if len(paragraph) >= 2 {
-		// 第一行是标题，最后一行是“（本章完）”，需要跳过
-		title = strings.TrimPrefix(paragraph[0], internal.PARAGRAPH_PREFIX)
-		paragraph = paragraph[1 : len(paragraph)-1]
+	if len(paragraph) >= 1 && strings.Contains(paragraph[len(paragraph)-1], "本章完") {
+		paragraph = paragraph[:len(paragraph)-1]
+	}
+	if len(paragraph) >= 1 && i.titleMatcher.MatchString(paragraph[0]) {
+		paragraph = paragraph[1:]
 	}
 	return internal.BookChapter{
 		Title:   title,
@@ -111,7 +116,10 @@ func (i *I69shu) Search(query string) []internal.BookInfo {
 
 func (i *I69shu) Get(info internal.BookInfo) ([]internal.BookChapterInfo, error) {
 	body := bytes.NewBuffer([]byte{})
-	requests.URL(info.ChapterUrl).ToBytesBuffer(body).Fetch(context.Background())
+	err := requests.URL(info.ChapterUrl).ToBytesBuffer(body).Fetch(context.Background())
+	if err != nil {
+		return nil, err
+	}
 	content, err := internal.GbkToUtf8String(body)
 	if err != nil {
 		return nil, err
