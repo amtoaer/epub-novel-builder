@@ -43,7 +43,7 @@ func Utf8StringToGbk(input string) (string, error) {
 	return Utf8ToGbkString(bytes.NewBuffer([]byte(input)))
 }
 
-func BuildContent(paragraph []string) string {
+func BuildContent(title string, paragraph []string) string {
 	var buf bytes.Buffer
 	for idx := range paragraph {
 		buf.WriteString("<p>")
@@ -53,5 +53,5 @@ func BuildContent(paragraph []string) string {
 		paragraph[idx] = buf.String()
 		buf.Reset()
 	}
-	return strings.Join(paragraph, PARAGRAPH_SUFFIX)
+	return "<h2>" + title + "</h2>" + PARAGRAPH_SUFFIX + strings.Join(paragraph, PARAGRAPH_SUFFIX)
 }
