@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path"
+	"time"
 
 	"github.com/amtoaer/epub-novel-builder/internal"
 	"github.com/amtoaer/epub-novel-builder/internal/adapter"
@@ -10,7 +12,7 @@ import (
 )
 
 func main() {
-	t := adapter.I69shu{}
+	t := adapter.New69shu()
 	books := t.Search("将夜")
 	if len(books) == 0 {
 		panic("no book found")
@@ -29,11 +31,12 @@ func main() {
 		}
 		e.SetCover(path, "")
 	}
-	chapterInfos, _ := t.Get(books[0])
+	chapterInfos, _ := t.Get(&book)
 	for _, chapterInfo := range chapterInfos {
-		println("downloading " + chapterInfo.Title + " ...")
 		chapter, _ := t.Download(chapterInfo)
 		e.AddSection(chapter.Content, chapter.Title, "", cssPath)
+		fmt.Printf("successfully download %s!\n", chapter.Title)
+		time.Sleep(internal.TIME_TO_SLEEP * time.Millisecond)
 	}
 	println("saving to " + path.Join(internal.OUTPUT_DIR, book.Title+".epub") + " ...")
 	os.MkdirAll(internal.OUTPUT_DIR, os.FileMode(0755))
